@@ -3,6 +3,7 @@
 const Client = require('node-kubernetes-client');
 const Provider = require('uniconfig').Provider;
 const _ = require('lodash');
+const Promise = require('bluebird');
 
 class Kubernetes extends Provider {
   constructor(config) {
