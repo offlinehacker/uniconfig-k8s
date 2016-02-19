@@ -1,9 +1,11 @@
 'use strict';
 
 const Client = require('node-kubernetes-client');
-const Provider = require('uniconfig').Provider;
 const _ = require('lodash');
 const Promise = require('bluebird');
+
+const Provider = require('uniconfig').Provider;
+const Errors = require('uniconfig').Errors;
 
 class Kubernetes extends Provider {
   constructor(config) {
@@ -26,7 +28,7 @@ class Kubernetes extends Provider {
     if (this._options[env.namespace]) {
       const value = _.get(this._options[env.namespace], name);
       if (!value) {
-        return Promise.reject(new Error('Option not found'));
+        return Promise.reject(new Errors.OptionNotFound(name));
       }
 
       return Promise.resolve(value);
@@ -36,13 +38,13 @@ class Kubernetes extends Provider {
       this.client.namespaces.get((err, namespaces) => {
         if (err) return rej(err);
 
-        const ns = _.find(namespaces[0].items, _.cond([
+        const ns = _.find(_.get(namespaces, '[0].items'), _.cond([
           [_.matchesProperty('metadata.annotations.namespace', env.namespace), _.identity],
           [_.matchesProperty('metadata.name', env.namespace), _.identity],
         ]));
 
         if (!ns) {
-          throw new Error('Namespace "' + env.namespace + "' not found");
+           return rej(new Errors.NamespaceNotFound(env.namespace));
         }
 
         const annotations = ns.metadata.annotations;

@@ -1,5 +1,6 @@
 const expect = require('chai').expect;
 const Config = require('uniconfig').Config;
+const Errors = require('uniconfig').Errors;
 
 const Kubernetes = require('../');
 
@@ -27,6 +28,18 @@ describe('Uniconfig K8S', () => {
     it('should get option from current namespace', () => {
       return this.provider.get('a.b.c.d', {namespace: 'default'}).then(val => {
         expect(val).to.be.equal('10');
+      });
+    });
+
+    it('should not find namespace', () => {
+      return this.provider.get('a.b.c.d', {namespace: 'undefined'}).catch(Errors.NamespaceNotFound, err => {
+        expect(err.name).to.be.equal('NamespaceNotFound');
+      });
+    });
+
+    it('should not find option', () => {
+      return this.provider.get('undefined', {namespace: 'default'}).catch(Errors.OptionNotFound, err => {
+        expect(err.name).to.be.equal('OptionNotFound');
       });
     });
   });
