@@ -12,7 +12,9 @@ class Kubernetes extends Provider {
     super(config);
 
     _.defaults(config, {
-      timeout: 5000
+      timeout: 5000,
+      protocol: 'http',
+      version: 'v1'
     });
 
     this.client = new Client(config);
@@ -25,8 +27,10 @@ class Kubernetes extends Provider {
   }
 
   get(name, env) {
-    if (this._options[env.namespace]) {
-      const value = _.get(this._options[env.namespace], name);
+    const namespace = env.namespace || 'default';
+
+    if (this._options[namespace]) {
+      const value = _.get(this._options[namespace], name);
       if (!value) {
         return Promise.reject(new Errors.OptionNotFound(name));
       }
@@ -39,12 +43,12 @@ class Kubernetes extends Provider {
         if (err) return rej(err);
 
         const ns = _.find(_.get(namespaces, '[0].items'), _.cond([
-          [_.matchesProperty('metadata.annotations.namespace', env.namespace), _.identity],
-          [_.matchesProperty('metadata.name', env.namespace), _.identity],
+          [_.matchesProperty('metadata.annotations.namespace', namespace), _.identity],
+          [_.matchesProperty('metadata.name', namespace), _.identity],
         ]));
 
         if (!ns) {
-           return rej(new Errors.NamespaceNotFound(env.namespace));
+           return rej(new Errors.NamespaceNotFound(namespace));
         }
 
         const annotations = ns.metadata.annotations;
@@ -53,7 +57,7 @@ class Kubernetes extends Provider {
           _.set(options, value, key);
         });
 
-        this._options[env.namespace] = options;
+        this._options[namespace] = options;
         res(this.get(name, env));
       });
     });
