@@ -1,6 +1,6 @@
 {
   "name": "uniconfig-k8s",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Uniconfig kubernetes provider",
   "main": "index.js",
   "dependencies": {
