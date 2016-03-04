@@ -19,7 +19,9 @@ class Kubernetes extends Provider {
       _.defaults(this.config, {
         host: `${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_SERVICE_PORT || 8080}`,
         protocol: 'https',
-        token: token
+        token: token,
+        timeout: 5000,
+        version: 'v1'
       });
     } else {
       _.defaults(this.config, {
