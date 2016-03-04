@@ -1,5 +1,6 @@
 'use strict';
 
+const fs = require('fs');
 const Client = require('node-kubernetes-client');
 const _ = require('lodash');
 const Promise = require('bluebird');
@@ -9,15 +10,26 @@ const Errors = require('uniconfig').Errors;
 
 class Kubernetes extends Provider {
   constructor(config) {
-    super(config);
+    super(config, true);
 
-    _.defaults(config, {
-      timeout: 5000,
-      protocol: 'http',
-      version: 'v1'
-    });
+    // Check if running in kubernetes container and use service account
+    if (process.env.KUBERNETES_SERVICE_HOST) {
+      token = fs.readFileSync('/run/secrets/kubernetes.io/serviceaccount/token');
 
-    this.client = new Client(config);
+      _.defaults(this.config, {
+        host: `${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_SERVICE_PORT || 8080}`,
+        protocol: 'https',
+        token: token
+      });
+    } else {
+      _.defaults(this.config, {
+        timeout: 5000,
+        protocol: 'http',
+        version: 'v1'
+      });
+    }
+
+    this.client = new Client(this.config);
 
     if (this.client instanceof Error) {
       throw this.client;
