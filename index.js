@@ -14,7 +14,7 @@ class Kubernetes extends Provider {
 
     // Check if running in kubernetes container and use service account
     if (process.env.KUBERNETES_SERVICE_HOST) {
-      token = fs.readFileSync('/run/secrets/kubernetes.io/serviceaccount/token');
+      const token = fs.readFileSync('/run/secrets/kubernetes.io/serviceaccount/token');
 
       _.defaults(this.config, {
         host: `${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_SERVICE_PORT || 8080}`,
