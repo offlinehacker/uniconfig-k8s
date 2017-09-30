@@ -6,12 +6,12 @@
   "dependencies": {
     "bluebird": "^3.3.1",
     "lodash": "^4.5.0",
-    "node-kubernetes-client": "^0.2.3",
+    "node-kubernetes-client": "^0.3.1",
     "uniconfig": "0.x.x"
   },
   "devDependencies": {
-    "chai": "^3.5.0",
-    "mocha": "^2.4.5",
+    "chai": "^4.1.2",
+    "mocha": "^3.5.3",
     "npm-release": "^1.0.0"
   },
   "scripts": {
